@@ -253,6 +253,9 @@ type IssueCommentShape = {
   html_url: string;
 };
 
+/**
+ *
+ */
 export function processCodeRabbitIssueComment(
   body: string,
   issueComment: IssueCommentShape,
@@ -1059,6 +1062,12 @@ function shouldFilterCodeRabbitIssueComment(issueCommentBody: string): boolean {
 
   // If we find multiple very long encoded strings, it's likely internal state
   if (longEncodedStrings.length >= 2) {
+    return true;
+  }
+
+  // Also filter if we find any extremely long single encoded strings (500+ chars)
+  const veryLongStrings = base64Matches.filter((match) => match.length > 500);
+  if (veryLongStrings.length >= 1) {
     return true;
   }
 

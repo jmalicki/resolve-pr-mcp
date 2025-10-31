@@ -1,0 +1,21 @@
+{
+  "data": {
+    "node": {
+      "id": "PRRC_kwDOQG2ass6TTvNJ",
+      "databaseId": 2471424841,
+      "body": "_⚠️ Potential issue_ | _🟠 Major_\n\n**Logic doesn't validate tags being pushed.**\n\nThe current logic checks if ANY local version tags exist, then validates package.json and CHANGELOG.md. This means even if you're not pushing a version tag, the validation will still run if you have any local version tags.\n\n\n\nThe hook should only validate when version tags are actually being pushed, not just when they exist locally. This requires reading the refs being pushed from the hook's stdin (see comment on lines 27-34).\n\n<details>\n<summary>🤖 Prompt for AI Agents</summary>\n\n```\nIn scripts/pre-push-version-check.js around lines 42 to 47, the code currently\nchecks for any local version tags and runs validation, but it must only validate\nwhen version tags are actually being pushed; update the logic to read the refs\nbeing pushed from the hook's stdin (parse the stdin lines or read file\ndescriptor 0), extract the ref names from those lines, filter those refs with\nVERSION_TAG_PATTERN to detect pushed version tags, and only run\npackage.json/CHANGELOG.md validation if that filtered pushed-tags list is\nnon-empty; leave existing VERSION_TAG_PATTERN usage and validation steps\nunchanged, just replace the localTags check with a check against the pushed refs\nparsed from stdin.\n```\n\n</details>\n\n<!-- This is an auto-generated comment by CodeRabbit -->",
+      "path": "scripts/pre-push-version-check.js",
+      "originalPosition": 47,
+      "diffHunk": "@@ -0,0 +1,92 @@\n+#!/usr/bin/env node\n+\n+/**\n+ * Pre-push hook to validate version tags\n+ * Ensures package.json and CHANGELOG.md are updated when pushing version tags\n+ */\n+\n+/* eslint-env node */\n+\n+import { existsSync } from 'fs';\n+import { execSync } from 'child_process';\n+import { fileURLToPath } from 'url';\n+import { dirname, join } from 'path';\n+\n+const __filename = fileURLToPath(import.meta.url);\n+const __dirname = dirname(__filename);\n+const rootDir = join(__dirname, '..');\n+\n+// Version tag pattern (e.g., v1.2.3, v1.2.3-alpha.1)\n+const VERSION_TAG_PATTERN = /^v\\d+\\.\\d+\\.\\d+(-[a-zA-Z0-9.-]+)?$/;\n+\n+function checkVersionTagValidation() {\n+  console.log('🔍 Checking for version tags...');\n+  \n+  try {\n+    // Check if we're pushing any version tags\n+    const remote = process.argv[2] || 'origin';\n+    const refs = process.argv[3] || 'main';\n+    \n+    // Get the refs being pushed\n+    execSync(`git ls-remote --heads --tags ${remote} ${refs}`, { \n+      encoding: 'utf8',\n+      cwd: rootDir \n+    });\n+    \n+    // For simplicity, check if any local tags match version pattern\n+    const localTags = execSync('git tag -l', { \n+      encoding: 'utf8',\n+      cwd: rootDir \n+    }).trim().split('\\n').filter(Boolean);\n+    \n+    const versionTags = localTags.filter(tag => VERSION_TAG_PATTERN.test(tag));\n+    \n+    if (versionTags.length === 0) {\n+      console.log('✅ No version tags detected, skipping validation');\n+      return true;\n+    }",
+      "createdAt": "2025-10-29T00:26:31Z",
+      "updatedAt": "2025-10-29T00:26:32Z",
+      "author": {
+        "login": "coderabbitai"
+      },
+      "pullRequestReview": {
+        "id": "PRR_kwDOQG2ass7KI1MQ",
+        "databaseId": 3391312656
+      }
+    }
+  }
+}

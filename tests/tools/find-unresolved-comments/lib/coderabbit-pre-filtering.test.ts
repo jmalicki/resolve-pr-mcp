@@ -1,5 +1,8 @@
 import { describe, it, expect } from "vitest";
-import { shouldFilterCodeRabbitReviewBody } from "../../../../src/tools/find-unresolved-comments/lib/coderabbit";
+import {
+  shouldFilterCodeRabbitReviewBody,
+  shouldFilterCodeRabbitIssueComment,
+} from "../../../../src/tools/find-unresolved-comments/lib/coderabbit";
 
 describe("CodeRabbit Pre-filtering", () => {
   it("should filter out rate limit messages", () => {

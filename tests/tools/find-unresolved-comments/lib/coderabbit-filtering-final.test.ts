@@ -1,5 +1,8 @@
 import { describe, it, expect } from "vitest";
-import { applyCodeRabbitFiltering } from "../../../../src/tools/find-unresolved-comments/lib/coderabbit";
+import {
+  applyCodeRabbitFiltering,
+  shouldFilterCodeRabbitIssueComment,
+} from "../../../../src/tools/find-unresolved-comments/lib/coderabbit";
 import type { Comment } from "../../../../src/tools/find-unresolved-comments/schema";
 
 function makeComment(

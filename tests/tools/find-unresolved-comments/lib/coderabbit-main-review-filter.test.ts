@@ -1,10 +1,8 @@
 import { describe, it, expect } from "vitest";
 import {
-  processCodeRabbitReview,
-  processCodeRabbitIssueComment,
-  applyCodeRabbitFiltering,
+  shouldFilterCodeRabbitReviewBody,
+  shouldFilterCodeRabbitIssueComment,
 } from "../../../../src/tools/find-unresolved-comments/lib/coderabbit.js";
-import type { Comment } from "../../../../src/tools/find-unresolved-comments/schema.js";
 import * as fs from "fs/promises";
 import * as path from "path";
 

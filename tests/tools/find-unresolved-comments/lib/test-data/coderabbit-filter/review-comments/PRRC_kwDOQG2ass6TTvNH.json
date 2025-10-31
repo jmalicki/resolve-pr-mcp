@@ -1,0 +1,21 @@
+{
+  "data": {
+    "node": {
+      "id": "PRRC_kwDOQG2ass6TTvNH",
+      "databaseId": 2471424839,
+      "body": "_⚠️ Potential issue_ | _🟠 Major_\n\n**Dead code: git ls-remote result is not used.**\n\nThe script accepts `remote` and `refs` arguments and executes `git ls-remote`, but the output is never used. This appears to be incomplete logic.\n\n\n\nThe script should actually check what refs are being pushed rather than just checking if any local version tags exist. Consider implementing proper ref detection using git hooks' stdin input:\n\n```javascript\n// Read refs from stdin (format: <local-ref> SP <local-oid> SP <remote-ref> SP <remote-oid> LF)\nconst refs = [];\nconst input = execSync('cat', { encoding: 'utf8' }).trim();\nif (input) {\n  input.split('\\n').forEach(line => {\n    const parts = line.split(' ');\n    if (parts[2]) {\n      refs.push(parts[2]); // remote ref being pushed\n    }\n  });\n}\n\n// Check if any of the refs being pushed are version tags\nconst versionTagsBeingPushed = refs.filter(ref => \n  ref.startsWith('refs/tags/') && VERSION_TAG_PATTERN.test(ref.replace('refs/tags/', ''))\n);\n```\n\n<details>\n<summary>🤖 Prompt for AI Agents</summary>\n\n```\nIn scripts/pre-push-version-check.js around lines 27 to 34, the call to `git\nls-remote` is dead code because its output is never used; replace that with\nreading the hook stdin to detect the actual refs being pushed: read from stdin,\nsplit lines, parse each line into fields and collect the remote ref (3rd field)\ninto an array, then filter that array for refs starting with \"refs/tags/\" and\ntest the tag name against VERSION_TAG_PATTERN to determine version tags being\npushed; remove the unused execSync call and use the parsed refs for the\nsubsequent version-check logic.\n```\n\n</details>\n\n<!-- This is an auto-generated comment by CodeRabbit -->",
+      "path": "scripts/pre-push-version-check.js",
+      "originalPosition": 34,
+      "diffHunk": "@@ -0,0 +1,92 @@\n+#!/usr/bin/env node\n+\n+/**\n+ * Pre-push hook to validate version tags\n+ * Ensures package.json and CHANGELOG.md are updated when pushing version tags\n+ */\n+\n+/* eslint-env node */\n+\n+import { existsSync } from 'fs';\n+import { execSync } from 'child_process';\n+import { fileURLToPath } from 'url';\n+import { dirname, join } from 'path';\n+\n+const __filename = fileURLToPath(import.meta.url);\n+const __dirname = dirname(__filename);\n+const rootDir = join(__dirname, '..');\n+\n+// Version tag pattern (e.g., v1.2.3, v1.2.3-alpha.1)\n+const VERSION_TAG_PATTERN = /^v\\d+\\.\\d+\\.\\d+(-[a-zA-Z0-9.-]+)?$/;\n+\n+function checkVersionTagValidation() {\n+  console.log('🔍 Checking for version tags...');\n+  \n+  try {\n+    // Check if we're pushing any version tags\n+    const remote = process.argv[2] || 'origin';\n+    const refs = process.argv[3] || 'main';\n+    \n+    // Get the refs being pushed\n+    execSync(`git ls-remote --heads --tags ${remote} ${refs}`, { \n+      encoding: 'utf8',\n+      cwd: rootDir \n+    });",
+      "createdAt": "2025-10-29T00:26:31Z",
+      "updatedAt": "2025-10-29T00:26:32Z",
+      "author": {
+        "login": "coderabbitai"
+      },
+      "pullRequestReview": {
+        "id": "PRR_kwDOQG2ass7KI1MQ",
+        "databaseId": 3391312656
+      }
+    }
+  }
+}

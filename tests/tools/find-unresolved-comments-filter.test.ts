@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { filterUnresolvedComments } from "../../src/tools/find-unresolved-comments/lib/filtering.js";
+import { shouldFilterCodeRabbitIssueComment } from "../../src/tools/find-unresolved-comments/lib/coderabbit.js";
 import type { Comment } from "../../src/tools/find-unresolved-comments/schema.js";
 
 describe("filterUnresolvedComments", () => {
